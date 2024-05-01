@@ -1,126 +1,76 @@
-// https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
-// https://stepik.org/lesson/311876/step/9?unit=294366
-// https://habr.com/ru/articles/734254/
-// https://www.opennet.ru/man.shtml?topic=getopt_long&category=3&russian=0
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <getopt.h>
 
-void printBuffer(char *buffer) {
-    if (buffer) {
-        int ch;
-        int i = 0;
-        do {
-            ch = buffer[i];
-            printf("%c", ch);
-            i++;
-        } while (ch != '\0');
-    }
-}
 
-char *readFile(char *name) {
-    long length;
-    char *buffer = 0;
+typedef struct arguments {
+    int numberNonBlankFlag;
+    int endOfLineFlag;
+    int numberFlag;
+    int squeezeBlankFlag;
+    int tabFlag;
+    int nonPrintableFlag;
+} arguments;
 
-    FILE *f = fopen(name, "rb");
+arguments argumentParser(int argc, char **argv) {
+    arguments arg = {0};
 
-    if (f) {
-        fseek(f, 0, SEEK_END);
-        length = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        buffer = malloc(length + 100); // плюс место для добавочных символов
-        if (buffer) {
-            fread(buffer, 1, length, f);
-            buffer[length] = '\0';
-        }
+    static struct option long_options[] = {
+        {"number-nonblank", no_argument, NULL, 'b'},
+        {"number", no_argument, NULL, 'n'},
+        {"squeeze-blank", no_argument, NULL, 's'},
+        {NULL, no_argument, NULL, 0},
+        {0, no_argument, NULL, 0}
+    };
 
-        fclose(f);
-    }
+    int opt = getopt_long(argc, argv, "bevEnstT", NULL, 0);
 
-    return buffer;
-}
-
-void numberLines(char *buffer) {
-}
-
-void addEnd(char *buffer) {
-    strcat(buffer, "$");
-}
-
-
-int main(int argc, char **argv) {
-    while (1) {
-        int option_index = 0;
-
-        static struct option long_options[] = {
-            {"number-nonblank", 0, 0, 'b'},
-            {"number", 0, 0, 'n'},
-            {"squeeze-blank", 0, 0, 's'}
-        };
-
-        int c = getopt_long(argc, argv, "bevEnstT", long_options, &option_index);
-
-        if (c == -1) {
+    switch (opt) {
+        case 'b':
+            arg.numberNonBlankFlag = 1;
             break;
-        }
-
-        switch (c) {
-            case 'b':
-                printf("parameter b\n");
-                break;
-
-            case 'e':
-                printf("parameter e\n");
-                break;
-
-            case 'v':
-                printf("parameter v\n");
-                break;
-
-            case 'E':
-                printf("parameter e\n");
-                break;
-
-            case 'n':
-                printf("parameter n\n");
-                break;
-
-            case 's':
-                printf("parameter s\n");
-                break;
-
-            case 't':
-                printf("parameter t\n");
-                break;
-
-            case 'T':
-                printf("parameter T\n");
-                break;
-
-            case '?':
-                printf("Undefined\n");
-                break;
-
-            default:
-                printf("?? getopt 0%o ??\n", c);
-        }
+        case 'e':
+            arg.endOfLineFlag = 1;
+        case 'v':
+            arg.nonPrintableFlag = 1;
+            break;
+        case 'E':
+            arg.endOfLineFlag = 1;
+            break;
+        case 'n':
+            arg.numberFlag = 1;
+            break;
+        case 's':
+            arg.squeezeBlankFlag = 1;
+            break;
+        case 't':
+            arg.nonPrintableFlag = 1;
+        case 'T':
+            arg.tabFlag = 1;
+            break;
+        case '?':
+            printf("Undefined flag\n");
+            break;
+        default:
+            printf("Error\n");
+            break;
     }
 
-    char *buffer = 0;
+    return arg;
+}
 
-    if (optind < argc) {
-        while (optind < argc) {
-            //printf ("%s\n", argv[optind++]);
-            buffer = readFile(argv[optind++]);
-        }
+void outline(char *line, int n) {
+    for(int i = 0; i < n; i++) {
+        putchar(line[i]);
     }
+}
 
-    addEnd(buffer);
-    printBuffer(buffer);
+void readFile() {
+}
 
-    free(buffer);
+int main(int argc, char *argv[]) {
+
+
 
     return 0;
 }
